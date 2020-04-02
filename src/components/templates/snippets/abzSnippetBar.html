@@ -1,0 +1,116 @@
+<template>
+  <v-toolbar>
+    <v-spacer v-show="!(['javascript', 'python', 'sh'].includes( selected ))" />
+
+    <div v-show="['javascript', 'python', 'sh'].includes( selected )">
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon
+            v-on="on"
+            color="purple accent-4"
+            @click="$emit('copy')"
+          >
+            <v-icon>mdi-content-copy</v-icon>
+          </v-btn>
+        </template>
+        <span>Copy</span>
+      </v-tooltip>
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon
+            v-on="on"
+            color="green accent-4"
+            @click="$emit('run')"
+          >
+            <v-icon>mdi-play</v-icon>
+          </v-btn>
+        </template>
+        <span>Run</span>
+      </v-tooltip>
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon
+            v-on="on"
+            color="red accent-4"
+            @click="$emit('stop')"
+          >
+            <v-icon>mdi-stop</v-icon>
+          </v-btn>
+        </template>
+        <span>Stop</span>
+      </v-tooltip>
+    </div>
+    <v-spacer />
+
+    <v-autocomplete
+      v-model="selected"
+      :items="allowed_langs"
+      color="white"
+      label="Language"
+      hide-details
+    ></v-autocomplete>
+
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon
+        color="grey darken-3"
+        v-on="on"
+        @click="dialog=true"
+        >
+          <v-icon> mdi-information-outline </v-icon>
+        </v-btn>
+      </template>
+      <span>Script Details</span>
+    </v-tooltip>
+
+
+  </v-toolbar>
+</template>
+<script>
+  export default {
+    sync:['selected', 'dialog'],
+    props: {
+    },
+
+    data: () => ({
+      allowed_langs:[],
+      langs : [
+          "javascript",
+          "html",
+          "sh",
+          "css",
+          "json",
+          "mysql",
+          "pgsql",
+          "sql",
+          "batchfile",
+          "powershell",
+          "makefile",
+          "nginx",
+          "dockerfile",
+          "markdown",
+          "text",
+      ]
+    }),
+
+    created() {
+      if(isLinux){
+        this.allowed_langs.push('python')
+      }
+      this.allowed_langs.push(...(this.langs));
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+    },
+
+  }
+</script>

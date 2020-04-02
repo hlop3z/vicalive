@@ -1,0 +1,91 @@
+<template>
+  <v-container fluid>
+     <v-toolbar flat>
+       <v-icon large class="mt-1 mr-2" color="black">{{ icon }}</v-icon>
+       <v-toolbar-title class="display-1 font-weight-black">
+         {{ title }}
+       </v-toolbar-title>
+       <v-btn class="mx-2 ml-4" fab :dark="dark" x-small :color="headerColor"
+       @click="$emit('create')">
+         <v-icon dark>mdi-plus</v-icon>
+       </v-btn>
+
+       <v-spacer></v-spacer>
+
+       <v-text-field
+         v-model="search"
+         append-icon="mdi-magnify"
+         label="Search"
+         single-line
+         hide-details
+       ></v-text-field>
+
+     </v-toolbar>
+
+    <table-base
+      v-bind="$attrs"
+      class="mt-5 table-row-ablaze"
+      item-key="id"
+      :header-class="headerClass"
+      :search.sync="search"
+      :sort.sync="sort"
+      @update="id=>$emit('update', id)"
+      @delete="id=>$emit('delete', id)"
+    />
+  </v-container>
+</template>
+<script>
+  export default {
+    sync:['sort'],
+    props: {
+      icon: String,
+      title: String,
+      headerColor: String,
+      dark: {type:Boolean, default: false },
+    },
+
+    data: () => ({
+      search:"",
+      items : [],
+      headers:[
+        {
+          value : 'name',
+          text  : 'Dessert (100g serving)',
+          align : 'start',
+        },
+        {
+          value : 'calories',
+          text  : 'Calories',
+        },
+        {
+          value   : 'fat',
+          text    : 'Fat (g)',
+        },
+        {
+          value   : 'carbs',
+          text    : 'Carbs (g)',
+        },
+        {
+          value   : 'protein',
+          text    : 'Protein (g)',
+        },
+      ]
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+      headerClass(){
+        return `${ this.headerColor } ${ this.dark ? 'dark' : '' }`
+      }
+    },
+
+    methods: {
+    },
+  }
+</script>

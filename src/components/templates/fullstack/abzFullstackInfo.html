@@ -1,0 +1,94 @@
+<template>
+  <v-dialog
+    max-width="100%"
+    v-model="dialog"
+    scrollable
+    persistent
+  >
+    <abz-fullstack-links :dialog.sync="links_dialog" :items.sync="links" />
+    <v-card>
+      <v-card-title class="black white--text">
+        <span class="headline">Script Details</span>
+        <v-spacer></v-spacer>
+        <v-tooltip left>
+          <template v-slot:activator="{ on }">
+            <v-btn icon
+              v-on="on"
+              color="light-blue darken-1"
+
+              @click="links_dialog=true"
+            >
+              <v-icon>mdi-file-link-outline</v-icon>
+            </v-btn>
+          </template>
+          <span><strong>Resources </strong>- <small>URLs of Tutorials, etc...</small></span>
+        </v-tooltip>
+      </v-card-title>
+      <v-card-text>
+        <v-text-field
+          v-model="form.name"
+          label="Name"
+          required
+        ></v-text-field>
+
+        <v-combobox
+          v-model="form.tags"
+          label="Tags"
+          hide-selected
+          disable-lookup
+          multiple
+          chips
+          small-chips
+        ></v-combobox>
+
+        <v-textarea
+          v-model="form.info"
+          label="Info"
+          outlined
+          no-resize
+          rows="2"
+        ></v-textarea>
+
+        <v-textarea
+          v-model="form.notes"
+          label="Notes"
+          outlined
+          no-resize
+          rows="5"
+        ></v-textarea>
+
+      </v-card-text>
+      <v-card-actions class="black white--text">
+        <v-spacer></v-spacer>
+        <v-btn color="green" text @click="closeAndSave">Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+<script>
+  export default {
+
+    sync:['dialog', 'form', 'links'],
+
+    data: () => ({
+      links_dialog: false,
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+      closeAndSave: function(){
+        this.dialog=false;
+        this.$emit('save');
+      },
+    },
+  }
+</script>

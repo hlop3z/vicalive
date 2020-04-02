@@ -1,0 +1,82 @@
+<template>
+  <div>
+    <h1
+      v-show="['python','javascript','sh'].includes(selected)"
+    >
+      <span  style="text-decoration: underline;">
+        The Output:
+      </span>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon
+            v-on="on"
+            color="purple accent-4"
+            @click="$emit('copy')"
+          >
+            <v-icon>mdi-content-copy</v-icon>
+          </v-btn>
+        </template>
+        <span>Copy</span>
+      </v-tooltip>
+    </h1>
+
+    <h1
+      v-show="['html'].includes(selected)"
+    >
+      <span  style="text-decoration: underline;">
+        Design:
+      </span>
+    </h1>
+    <component
+      v-show="(['html'].includes(selected) && code)"
+      v-bind:is="htmlVueLive"
+      :key="Date.now()"
+      class="text-left"
+    />
+
+    <v-card
+      elevation="4"
+      v-show="['python','javascript','sh'].includes(selected) && console_log.length > 0"
+      class="mx-auto overflow-y-auto text-left pa-5"
+      max-width="95%"
+      style="max-height: 450px;"
+    >
+      <template v-for="item in console_log">
+        {{ item }}
+        <v-divider color="blue"/>
+      </template>
+    </v-card>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    sync:['selected', 'code'],
+    props: {
+    },
+
+    data: () => ({
+    }),
+
+    created() {
+    },
+
+    mounted () {
+    },
+
+    computed:{
+      htmlVueLive(){
+        var obj = {};
+        try {
+          obj = Object.assign(obj, { template : this.code });
+        } catch (e) {
+        }
+        return obj
+      },
+    },
+
+    methods: {
+    },
+  }
+</script>

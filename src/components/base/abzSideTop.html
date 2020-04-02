@@ -1,0 +1,64 @@
+<template>
+  <v-app-bar
+    id="app-bar"
+    dark
+    app
+    dense
+    clipped-right
+    clipped-left
+    fixed
+  >
+
+    <v-spacer></v-spacer>
+    <v-btn
+      @click="[ (active='fullstack') ]"
+    >
+      <v-icon class="mr-1">mdi-package-variant</v-icon>
+      Fullstack
+    </v-btn>
+    <v-btn
+      @click="[ (active='snippets') ]"
+    >
+      <v-icon class="mr-1">mdi-clipboard-list-outline</v-icon>
+      Snippets
+    </v-btn>
+    <v-btn
+      @click="[ (active='settings') ]"
+    >
+      <v-icon class="mr-1">mdi-application-export</v-icon>
+      Exp/Import
+    </v-btn>
+    <v-spacer></v-spacer>
+
+    <v-btn icon color="white"
+    v-show="([ 'fullstack-editor', 'snippets-editor' ].includes( active ))"
+    @click="right = !right">
+      <v-icon dark>mdi-code-braces-box</v-icon>
+    </v-btn>
+
+
+  </v-app-bar>
+</template>
+<script>
+  export default {
+    sync: [ 'active', 'right' ],
+    props: {
+    },
+
+    data: () => ({
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+    },
+  }
+</script>

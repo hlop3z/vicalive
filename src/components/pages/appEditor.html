@@ -1,0 +1,91 @@
+<template>
+  <v-app>
+    <abz-snackbar />
+
+    <abz-side-top :active.sync="page_active" :right.sync="right_active" />
+
+    <v-navigation-drawer
+      v-if="( page_active==='fullstack-editor' )"
+      v-model="right_active"
+      app
+      clipped
+      mobile-break-point=0
+      right
+      width="825px"
+      style="overflow:hidden;"
+    >
+      <abz-fullstack @save="$emit('fullstack')" :selected.sync="selected" :linux.sync="linux" :form.sync="fullstack"/>
+    </v-navigation-drawer>
+
+    <v-navigation-drawer
+      v-if="( page_active==='snippets-editor' )"
+      v-model="right_active"
+      app
+      clipped
+      mobile-break-point=0
+      right
+      width="825px"
+      style="overflow:hidden;"
+    >
+      <abz-snippet @save="$emit('snippet')" :selected.sync="snippet.lang" :form.sync="snippet"  />
+    </v-navigation-drawer>
+
+    <v-content
+      class="fill-height text-center"
+      style="overflow: hidden;"
+    >
+      <abz-fullstack-output v-if="( page_active==='fullstack-editor' )"
+        @copy="copyText( consoleLog )"
+        :selected.sync="selected"
+        :html.sync="fullstack.snippets.html"
+        :code.sync="fullstack.snippets"
+      />
+      <abz-snippet-output v-if="( page_active==='snippets-editor' )"
+        @copy="copyText( consoleLog )"
+        :selected.sync="snippet.lang"
+        :code.sync="snippet.snippet"
+      />
+
+    </v-content>
+
+    <abz-side-bottom />
+  </v-app>
+</template>
+<script>
+  export default {
+    sync:['fullstack', 'snippet', 'page_active', 'linux'],
+    props: {
+    },
+
+    data: () => ({
+      right_active: true,
+      selected: {
+        lang      : 'javascript',
+        py        : isLinux ? 'live' : 'cherrypy',
+        js        : 'live',
+        html      : 'live',
+        sh        : 'live',
+      },
+
+    }),
+
+    created() {
+      if(!this.snippet.lang){
+        this.snippet.lang = "python"
+      }
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+      consoleLog(){
+        return this.console_log.join('\n')
+      }
+    },
+
+    methods: {
+    },
+  }
+</script>

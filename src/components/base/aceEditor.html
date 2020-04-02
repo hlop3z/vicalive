@@ -1,0 +1,61 @@
+<template>
+  <pre @keyup="$emit('save')" :id="ID" :style="theStyle"></pre>
+</template>
+<script>
+  export default {
+    sync:['lang', 'uid'],
+    props: {
+      font : { default: '20px' },
+      code : { default: ''},
+    },
+
+    data: () => ({
+      ID    : null,
+      editor: null,
+      theStyle:'',
+    }),
+
+    created() {
+      var ID   = this.random_id_name();
+      this.ID  = ID;
+      this.uid = ID;
+    },
+
+    mounted () {
+      var self    = this;
+      var element = this.$el;
+      this.registerAceEditor();
+      element.style.fontSize = this.font;
+      element.style.zIndex = 0;
+      window.addEventListener("keyup", function(e) {
+        var code = self.editor.getValue();
+        self.code = code;
+        self.$emit('update:code', code)
+      }.bind(this));
+      this.theStyle = `width:100%; height:100%; overflow: hidden; margin-bottom:`;
+      this.editor.setValue( this.code );
+    },
+    computed:{
+    },
+
+    methods: {
+      random_id_name(){
+        function random(size=32, choices="0123456789abcdefghijklmnopqrstuvwxyz") {
+          var text = "";
+          var possible = choices;
+          for (var i = 0; i < size; i++)
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+          return text;
+        };
+        return `${ this.lang }-${ random() }`;
+      },
+      registerAceEditor: function(){
+        var langTools = ace.require("ace/ext/language_tools");
+        this.editor   = ace.edit( this.ID );
+        this.editor.setTheme("ace/theme/monokai");
+        this.editor.getSession().setMode(`ace/mode/${ this.lang }`);
+        this.editor.setOptions({enableLiveAutocompletion: true});
+      },
+    },
+  }
+</script>

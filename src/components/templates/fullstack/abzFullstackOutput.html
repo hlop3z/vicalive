@@ -1,0 +1,425 @@
+<template>
+  <div style="height:100%;">
+
+    <h1 v-show="active_live">
+      <span  style="text-decoration: underline;">
+        The Output:
+      </span>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon
+            v-on="on"
+            color="purple accent-4"
+            @click="$emit('copy')"
+          >
+            <v-icon>mdi-content-copy</v-icon>
+          </v-btn>
+        </template>
+        <span>Copy</span>
+      </v-tooltip>
+    </h1>
+
+    <v-card
+      elevation="4"
+      v-show="active_live && console_log.length > 0"
+      class="mx-auto overflow-y-auto text-left pa-5"
+      max-width="95%"
+      style="max-height: 450px;"
+    >
+      <template v-for="item in console_log">
+        {{ item }}
+        <v-divider/>
+      </template>
+    </v-card>
+
+    <div
+      class="mt-1"
+      v-show="active_example"
+     >
+      <h1>
+        <span  style="text-decoration: underline;">
+          Example:
+        </span>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon
+              v-on="on"
+              color="purple accent-4"
+              @click="copyText( activeExample )"
+            >
+              <v-icon>mdi-content-copy</v-icon>
+            </v-btn>
+          </template>
+          <span>Copy</span>
+        </v-tooltip>
+      </h1>
+
+      <div class="mt-2" style="width:100%;" v-show="['py-sanic','py-cherrypy','py-quartpy'].includes(activeEditor)">
+
+        <v-text-field
+          v-model="server_port"
+          label="Port"
+          outlined
+          dense
+          style="width: 80px; display: inline-block;"
+        ></v-text-field>
+
+        <v-btn text small
+          color="primary"
+          @click="[(dialog_log=true),(dialog_log_server=false)]"
+        >
+          <span style="text-decoration: underline;">Log</span>
+          <v-icon small>mdi-open-in-new</v-icon>
+        </v-btn>
+        <v-btn text small
+          color="primary"
+          @click="[(dialog_log=true),(dialog_log_server=true)]"
+        >
+          <span style="text-decoration: underline;">Server</span>
+          <v-icon small>mdi-open-in-new</v-icon>
+        </v-btn>
+
+      </div>
+
+      <abz-fullstack-log
+        :key="Date.now()"
+        :dialog.sync= "dialog_log"
+        :server.sync= "dialog_log_server"
+        :port.sync  = "server_port"
+      />
+
+      <v-card class="ml-2 mr-2" elevation="4"
+        v-show="['py-sanic'].includes( activeEditor )"
+      >
+        <pre :class="preExampleClass" style="max-height: 375px">{{ sanicExample }}</pre>
+      </v-card>
+
+      <v-card class="ml-2 mr-2 mt-2" elevation="4"
+        v-show="['py-cherrypy'].includes( activeEditor )"
+      >
+        <pre :class="preExampleClass" style="max-height: 375px">{{ cherryExample }}</pre>
+      </v-card>
+
+      <v-card class="ml-2 mr-2 mt-2" elevation="4"
+        v-show="['py-quartpy'].includes( activeEditor )"
+      >
+        <pre :class="preExampleClass" style="max-height: 375px">{{ quartExample }}</pre>
+      </v-card>
+
+      <v-card class="ml-2 mr-2 mt-2" elevation="4"
+        v-show="['js-vue'].includes( activeEditor )"
+      >
+        <pre :class="preExampleClass" style="max-height: 375px">{{ vueExample }}</pre>
+      </v-card>
+
+    </div>
+
+    <component
+      v-show="(['html-live'].includes(activeEditor) && code.html.live)"
+      v-bind:is="htmlVueLive"
+      :key="Date.now()"
+      class="text-left"
+    />
+    <div class="mt-5" v-show="(['html-live'].includes(activeEditor) && !code.html.live)">
+      <h1>
+        <span  style="text-decoration: underline;">
+          Design Component:
+        </span>
+      </h1>
+      <code
+      @click="copyText( activeExample )"
+      class="mt-5" style="font-size : 20px; width : 260px; cursor: pointer;">&lt;h1&gt;Click Me&lt;/h1&gt;</code>
+    </div>
+
+    <div class="text-center pa-5" style="font-size:18px; width:100%;"
+      v-show="( ['html-server'].includes(activeEditor) )"
+    >
+      <span class="mr-5">
+        <strong style="text-decoration: underline;">Setup</strong>
+      </span>
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn
+          color="primary"
+          v-on="on"
+          @click="htmlDialog('head')"
+          >
+            <v-icon>mdi-less-than</v-icon>
+            Head
+            <v-icon>mdi-greater-than</v-icon>
+          </v-btn>
+        </template>
+        <span>Setup Custom HTML &lt;head&gt;&lt;/head&gt;</span>
+      </v-tooltip>
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            class="ml-5"
+            color="primary"
+            v-on="on"
+            @click="htmlDialog('body')"
+          >
+            <v-icon>mdi-less-than</v-icon>
+            Scripts
+            <v-icon>mdi-greater-than</v-icon>
+          </v-btn>
+        </template>
+        <span>Setup Custom HTML Scripts &lt;body&gt;&lt;/body&gt;</span>
+      </v-tooltip>
+
+
+      <abz-fullstack-custom-html
+        :dialog.sync="custom_html_dialog"
+        :part.sync="custom_html_part"
+        :html.sync="code.html"
+      />
+      <pre
+        class="pink--text text-left mt-5" style="font-size:12px; border: 2px solid grey; padding:4px;"
+        v-html="htmlServerExample"
+      />
+
+    </div>
+  </div>
+</template>
+<script>
+  export default {
+    sync: [ 'selected', 'html' , 'code' ],
+
+    props: {
+    },
+
+    data: () => ({
+      custom_html_dialog : false,
+      custom_html_part   : null,
+      dialog_log         : false,
+      dialog_log_server  : true,
+      server_port        : 8013,
+    }),
+
+    created() {
+    },
+
+    mounted () {
+    },
+
+    methods: {
+      htmlDialog(part){
+        this.custom_html_dialog=true;
+        this.custom_html_part=part;
+      },
+    },
+
+    computed:{
+      preExampleClass(){
+        return 'pa-2 pink--text darken-2 text-left overflow-y-auto'
+      },
+      active_live(){
+        return ['sh-script', 'sh-live', 'js-live', 'py-live'].includes( this.activeEditor )
+      },
+      active_example(){
+        return ['py-sanic', 'py-cherrypy', 'py-quartpy', 'js-vue' ].includes( this.activeEditor )
+      },
+
+
+
+      htmlVueLive(){
+        var obj = {};
+        var vue_obj;
+        try {
+          vue_obj = eval(`(function(){ return ${ this.code.js.vue.replace('const', '',1) } })();`);
+        } catch (e) {
+          vue_obj = {};
+        }
+        obj = Object.assign(obj, vue_obj);
+        try {
+          obj = Object.assign(obj, { template : this.code.html.live });
+        } catch (e) {
+        }
+        return obj
+    },
+
+      activeExample(){
+        switch (this.activeEditor) {
+          case 'py-sanic':
+            return this.sanicExample;
+            break;
+          case 'py-cherrypy':
+            return this.cherryExample;
+            break;
+          case 'py-quartpy':
+            return this.quartExample;
+            break;
+          case 'js-vue':
+            return this.vueExample;
+            break;
+          case 'html-live':
+            return `<h1>Click Me</h1>`;
+            break;
+          default:
+            return ''
+        }
+      },
+
+
+      sanicExample(){
+        return `from sanic import Sanic
+from sanic import response
+from sanic_cors import CORS
+
+app = Sanic('test_sanic')
+CORS(app, automatic_options=True, supports_credentials=True)
+
+@app.route('/')
+async def app_root(request):
+    return response.json({ 'message': 'Hello World < Sanic >!' })
+
+@app.post('/create')
+async def app_create(request):
+    return response.json({ 'data': request.json })
+
+@app.post('/update')
+async def app_update(request):
+    return response.json({ 'data': request.json })
+
+@app.post('/delete')
+async def app_delete(request):
+    return response.json({ 'data': request.json })
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8013)`
+    },
+
+    cherryExample(){
+      return `import cherrypy
+import cherrypy_cors
+
+class app(object):
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def index(self, **params):
+        return {"message": "Hello World < CherryPY >!"}
+
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def json(self, **params):
+        data = cherrypy.request.json
+        return data
+
+    # DO NOT ERASE
+    @classmethod
+    def run(cls, host='0.0.0.0', port=8013):
+        cherrypy_cors.install()
+        cherrypy.config.update({
+            'server.socket_host': host,
+            'server.socket_port': port,
+        })
+        config = {
+            '/': {
+                'cors.expose.on': True,
+            },
+        }
+        cherrypy.quickstart(cls(), config=config)
+
+
+app.run(host='0.0.0.0', port=8013)`},
+
+    quartExample(){
+      return `from quart import Quart, websocket, request
+from quart_cors import cors
+
+app = Quart('test_quart')
+app = cors(
+    app,
+    allow_origin="http://localhost:8012",
+    allow_methods=["GET", "POST"],
+    allow_credentials=True,
+)
+
+@app.route("/")
+async def app_root():
+    return {"message": "Hello World < Quart >!"}
+
+@app.route('/create', methods=['POST'])
+async def app_create():
+    request_json =  await request.get_json()
+    return { 'data': request_json }
+
+@app.route('/update', methods=['POST'])
+async def app_update():
+    request_json =  await request.get_json()
+    return { 'data': request_json }
+
+@app.route('/delete', methods=['POST'])
+async def app_delete():
+    request_json =  await request.get_json()
+    return { 'data': request_json }
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8013)`
+        },
+
+    vueExample(){
+      return `const Component = {
+  props:[],
+
+  data: () => ({
+    msg : "",
+  }),
+
+  created() {
+  },
+
+  mounted () {
+    // this.axiosNoCredits();
+    // this.axiosCredits();
+  },
+
+  computed:{
+  },
+
+  methods: {
+    axiosNoCredits: function(){
+      var self = this;
+      axios.get('http://localhost:8013').then(res=>{
+          self.msg = res.data.message
+      });
+    },
+    axiosCredits: function(){
+      var self = this;
+      $http.get('http://localhost:8013').then(res=>{
+          self.msg = res.data.message
+      });
+    },
+  },
+}`},
+
+      htmlServerExample(){
+        return `&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  <span style="font-size:15px;">&lt;!-- [<strong>START HEAD EXAMPLE</strong>] --&gt;</span>
+
+  &lt;meta charset="utf-8"&gt;
+  &lt;link href="css/styles.css?v=1.0" rel="stylesheet"&gt;
+
+  <span style="font-size:15px;">&lt;!-- [<strong>END HEAD EXAMPLE</strong>] --&gt;</span>
+
+&lt;/head&gt;
+
+&lt;body&gt;
+
+  <span style="font-size:15px;">&lt;!-- [<strong>START SCRIPTS EXAMPLE</strong>] --&gt;</span>
+
+  &lt;script src="js/scripts.js"&gt;&lt;/script&gt;
+
+  <span style="font-size:15px;">&lt;!-- [<strong>END SCRIPTS EXAMPLE</strong>] --&gt;</span>
+&lt;/body&gt;
+&lt;/html&gt;`
+      },
+    },
+
+  }
+</script>

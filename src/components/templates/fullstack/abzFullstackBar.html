@@ -1,0 +1,162 @@
+<template>
+  <v-toolbar dense>
+    <v-radio-group
+      row
+      v-model = "selected.js"
+      class   = "mt-5"
+      v-show  = "(selected.lang==='javascript')"
+    >
+      <v-icon class="mr-2" :color="colors.js">{{ icons.js }}</v-icon>
+      <v-radio label="Live"    value="live"     :color="colors.js"></v-radio>
+      <v-radio label="Vue"     value="vue"      :color="colors.js"></v-radio>
+    </v-radio-group>
+
+    <v-radio-group
+      row
+      v-model = "selected.py"
+      class   = "mt-5"
+      v-show  = "(selected.lang==='python')"
+    >
+      <v-icon class="mr-2" :color="colors.py">{{ icons.py }}</v-icon>
+      <template v-if="linux">
+        <v-radio label="Live"    value="live"     :color="colors.py"></v-radio>
+        <v-radio label="Sanic"   value="sanic"    :color="colors.py"></v-radio>
+      </template>
+      <v-radio label="Cherrypy"value="cherrypy" :color="colors.py"></v-radio>
+      <v-radio label="Quart"   value="quartpy"  :color="colors.py"></v-radio>
+    </v-radio-group>
+
+
+    <v-radio-group
+      row
+      v-model = "selected.html"
+      class   = "mt-5"
+      v-show  = "(selected.lang==='html')"
+    >
+      <v-icon class="mr-2" :color="colors.html">{{ icons.html }}</v-icon>
+      <v-radio label="Live"    value="live"     :color="colors.html"></v-radio>
+      <v-radio label="Server"  value="server"   :color="colors.html"></v-radio>
+    </v-radio-group>
+
+    <v-radio-group
+      row
+      v-model = "selected.sh"
+      class   = "mt-5"
+      v-show  = "(selected.lang==='sh')"
+    >
+      <v-icon class="mr-2" :color="colors.sh">{{ icons.sh }}</v-icon>
+      <v-radio label="Live"    value="live"     :color="colors.sh"></v-radio>
+      <v-radio label="Script"  value="script"   :color="colors.sh"></v-radio>
+    </v-radio-group>
+
+    <v-spacer></v-spacer>
+
+
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon
+          :color='colors.py'
+          v-on="on"
+          @click="setSelectedLang('python')"
+        >
+          <v-icon>{{ icons.py }}</v-icon>
+        </v-btn>
+      </template>
+      <span>Python</span>
+    </v-tooltip>
+
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon
+          :color="colors.js"
+          v-on="on"
+          @click="setSelectedLang('javascript')"
+        >
+          <v-icon>{{ icons.js }}</v-icon>
+        </v-btn>
+      </template>
+      <span>Javascript</span>
+    </v-tooltip>
+
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon
+          :color="colors.html"
+          v-on="on"
+          @click="setSelectedLang('html')"
+        >
+          <v-icon>{{ icons.html }}</v-icon>
+        </v-btn>
+      </template>
+      <span>HTML</span>
+    </v-tooltip>
+
+    <v-tooltip bottom v-if="linux">
+      <template v-slot:activator="{ on }">
+        <v-btn icon
+        :color="colors.sh"
+        v-on="on"
+        @click="setSelectedLang('sh')"
+        >
+          <v-icon>{{ icons.sh }}</v-icon>
+        </v-btn>
+      </template>
+      <span>Shell</span>
+    </v-tooltip>
+
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon
+        color="grey darken-3"
+        v-on="on"
+        @click="dialog=true"
+        >
+          <v-icon>{{ icons.info }}</v-icon>
+        </v-btn>
+      </template>
+      <span>Script Details</span>
+    </v-tooltip>
+
+
+  </v-toolbar>
+</template>
+<script>
+  export default {
+    sync:['selected', 'linux', 'dialog'],
+    props: {
+    },
+
+    data: () => ({
+      icons:{
+        py  : 'mdi-language-python',
+        js  : 'mdi-language-javascript',
+        html: 'mdi-language-html5',
+        sh  : 'mdi-code-greater-than-or-equal',
+        info: 'mdi-information-outline',
+      },
+      colors:{
+        py  : 'blue',
+        js  : 'yellow darken-3',
+        html: 'deep-orange darken-2',
+        sh  : 'light-green darken-4',
+      },
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+      setSelectedLang: function(lang){
+        this.selected.lang = lang;
+      },
+    },
+
+  }
+</script>

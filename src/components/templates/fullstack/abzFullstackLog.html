@@ -1,0 +1,86 @@
+<template>
+  <div class="text-center">
+    <v-dialog
+      persistent
+      v-model="dialog"
+      fullscreen
+      scrollable
+    >
+      <v-card>
+        <v-card-title
+          class="purple darken-4 white--text"
+          primary-title
+        >
+        <v-spacer></v-spacer>
+        <span :style="(server ? '' : 'text-decoration: underline;')"> {{ server ? ('Server at ') : 'Server-Log' }} </span>
+        <a
+          class="ml-3 white--text"
+          v-show="server"
+          :href="url"
+        >{{ url }}</a>
+        <v-spacer></v-spacer>
+        <v-btn
+          class="ml-3"
+          color="white"
+          outlined
+          @click="dialog = false"
+        >
+          Close
+        </v-btn>
+        </v-card-title>
+
+        <iframe v-if="server" :src="url" style="width:100%; height:100%;"></iframe>
+
+        <v-card-text v-else class="text-left">
+          <template v-for="item in items">
+            {{ item }}
+            <v-divider/>
+          </template>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
+</template>
+<script>
+  export default {
+    sync: ['dialog', 'server', 'port'],
+    props: {
+    },
+
+    data: () => ({
+      live_log : "",
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+      items(){
+        var log = this.log();
+        if(log){
+          return log.split('\n')
+        }else{
+          return []
+        }
+      },
+      url(){
+        return this.live_py_url(this.port)
+      }
+    },
+
+    methods: {
+      log(){
+        var self = this;
+        axios.get( this.api.live_log ).then(response=>{
+          var data = response.data;
+          self.live_log = data;
+        })
+        return this.live_log
+      }
+    },
+  }
+</script>

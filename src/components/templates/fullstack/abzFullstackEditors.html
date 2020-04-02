@@ -1,0 +1,119 @@
+<template>
+  <div>
+    <ace-editor
+      v-show      = "isActive('py-live')"
+      :code.sync  = "codes.python"
+      lang        = "python"
+      :uid.sync   = "py_live"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('js-live')"
+      :code.sync  = "codes.javascript"
+      lang        = "javascript"
+      :uid.sync   = "js_live"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('js-vue')"
+      :code.sync  = "codes.js.vue"
+      lang        = "javascript"
+      :uid.sync   = "js_vue"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('html-live')"
+      :code.sync  = "codes.html.live"
+      lang        = "html"
+      :uid.sync   = "html_live"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('html-server')"
+      :code.sync  = "codes.html.server"
+      lang        = "html"
+      :uid.sync   = "html_server"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('sh-live') "
+      :code.sync  = "codes.sh.live"
+      lang        = "sh"
+      :uid.sync   = "sh_live"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('sh-script') "
+      :code.sync  = "codes.sh.script"
+      lang        = "sh"
+      :uid.sync   = "sh_script"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('py-sanic')"
+      :code.sync  = "codes.py.sanic"
+      lang        = "python"
+      :uid.sync   = "py_sanic"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('py-cherrypy')"
+      :code.sync  = "codes.py.cherrypy"
+      lang        = "python"
+      :uid.sync   = "py_cherrypy"
+      @save       = "$emit('save')"
+    />
+    <ace-editor
+      v-show      = "isActive('py-quartpy')"
+      :code.sync  = "codes.py.quartpy"
+      lang        = "python"
+      :uid.sync   = "py_quartpy"
+      @save       = "$emit('save')"
+    />
+  </div>
+</template>
+<script>
+  export default {
+    sync: [ 'selected', 'codes', 'ids' ],
+    props: {
+    },
+
+    data: () => ({
+      js_live     : null,
+      js_vue      : null,
+      py_live     : null,
+      py_cherrypy : null,
+      py_quartpy  : null,
+      py_sanic    : null,
+      html_server : null,
+      html_live   : null,
+      sh_script   : null,
+      sh_live     : null,
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      this.ids={
+        'js-live'     : this.js_live,
+        'js-vue'      : this.js_vue,
+        'py-live'     : this.py_live,
+        'py-cherrypy' : this.py_cherrypy,
+        'py-quartpy'  : this.py_quartpy,
+        'py-sanic'    : this.py_sanic,
+        'html-server' : this.html_server,
+        'html-live'   : this.html_live,
+        'sh-script'   : this.sh_script,
+        'sh-live'     : this.sh_live,
+      }
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+    },
+  }
+</script>

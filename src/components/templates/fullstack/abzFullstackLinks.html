@@ -1,0 +1,183 @@
+<template>
+  <v-dialog
+    scrollable
+    persistent
+    v-model="dialog"
+    width="700"
+  >
+    <v-card>
+      <v-card-title class="light-blue darken-1 white--text">
+        <v-btn dark text icon class="mr-2"
+          @click="( ((action !== 'edit') && (items.length > 0)) ? (action = 'edit') : (action = 'view') )"
+        >
+          <v-icon dark>{{ (action !== 'edit') ? 'mdi-marker' : 'mdi-eye' }}</v-icon>
+        </v-btn>
+        Resources
+        <small class="ml-2">{{ (action === 'edit') ? '( Editing )' : '' }}</small>
+
+        <v-spacer/>
+        <v-btn dark text icon @click="closeAndSave">
+          <v-icon dark>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
+
+      <v-card-text>
+
+        <v-list v-show="(action === 'view')">
+          <template v-for="(item, index) in items">
+            <v-list-item
+              :key="item.id"
+              @click="actionEdit( item.id )"
+            >
+              <v-list-item-content>
+                <v-list-item-subtitle>
+                  <strong class="black--text">{{ item.title }}</strong>
+                  &mdash;
+                  <span class="blue--text">{{ item.link }}</span>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+          </template>
+        </v-list>
+
+        <v-list v-show="(action === 'edit')">
+          <template v-for="(item, index) in items">
+            <v-list-item
+              :key="item.id"
+              @click="actionEdit( item.id )"
+            >
+              <v-list-item-content>
+                <v-list-item-subtitle>
+                  <strong class="black--text">{{ item.title }}</strong>
+                  &mdash;
+                  <span class="blue--text">{{ item.link }}</span>
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+          </template>
+        </v-list>
+
+      </v-card-text>
+
+      <v-divider></v-divider>
+
+      <v-card-actions>
+        <v-text-field
+          v-model="form.title"
+          @keyup="autoUpdate"
+          style="width:25%;"
+          label="Title"
+          placeholder="Give the link a Title."
+          outlined
+        ></v-text-field>
+        <v-text-field
+          v-model="form.link"
+          @keyup="autoUpdate"
+          style="width:65%;"
+          class="ml-1 mr-1"
+          label="Link"
+          placeholder="For example -> http://github.com"
+          outlined
+        ></v-text-field>
+        <v-spacer/>
+        <v-btn small fab dark
+          style="margin-top:-25px;"
+          :color="( (action === 'edit') ? 'red darken-1' : 'light-blue darken-1' )"
+          @click="createDelete"
+        >
+          <v-icon dark>{{ (action === 'edit') ? 'mdi-minus' : 'mdi-plus' }}</v-icon>
+        </v-btn>
+        <v-spacer/>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+<script>
+  export default {
+    sync:['dialog', 'items'],
+    props: {
+    },
+
+    data: () => ({
+      action: 'view',
+      form :{
+        id: null,
+        title: '',
+        link : '',
+      },
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+      closeAndSave: function(){
+        this.dialog = false;
+      },
+      autoUpdate: function(){
+        return (this.form.id && (this.action === 'edit')) ? this.actionSave() : null
+      },
+      createDelete: function(){
+        return (this.action === 'edit') ? this.actionDelete() : this.actionCreate()
+      },
+      actionCreate: function(){
+        if(this.form.link !== ""){
+          var self    = this;
+          var id      = $ablaze.random.alphanum(16);
+          var records = AblazeRecords( this.items ).by('id');
+          var created = false;
+          function newRecord(_id){
+            self.items.push({
+              id    : _id,
+              title : self.form.title,
+              link  : self.form.link,
+            });
+            self.form.title = "";
+            self.form.link  = "";
+          }
+          while (!created) {
+            if(!records[ id ]){
+              newRecord( id );
+              created = true;
+            }else{
+              id = $ablaze.random.alphanum(16);
+            }
+          }
+        }
+      },
+      actionEdit  : function(id){
+        var records     = AblazeRecords( this.items ).by('id');
+        var item        = records[ id ];
+        this.form.id    = id;
+        this.form.title = item.title;
+        this.form.link  = item.link;
+      },
+      actionSave  : function(){
+        var records = AblazeRecords( this.items ).by('id');
+        if(this.form.id){
+          var item     = records[ this.form.id ];
+          item.title   = this.form.title;
+          item.link    = this.form.link;
+          this.items   = Object.values( records );
+          }
+      },
+      actionDelete: function(){
+        var records = AblazeRecords( this.items ).by('id');
+        delete records[ this.form.id ];
+        this.items      = Object.values( records );
+        this.form.id    = null;
+        this.form.title = null;
+        this.form.link  = null;
+      },
+    },
+  }
+</script>

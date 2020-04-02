@@ -1,0 +1,65 @@
+<template>
+  <div>
+
+    <div style="margin:0; padding:0; max-height:0px; max-width:0px; postion:fixed; top:0">
+      <textarea id="ABLAZE_COPY_TEXT_ID" ></textarea>
+    </div>
+
+    <app-editor  v-if="['fullstack-editor', 'snippets-editor'].includes(active)"
+      :page_active.sync       = "active"
+      :fullstack.sync         = "fullstack"
+      :snippet.sync           = "snippet"
+      :linux.sync             = "linux"
+      @fullstack              = "updateFullstack"
+      @snippet                = "updateSnippet"
+    />
+
+    <app-listing v-if="['settings', 'fullstack', 'snippets'].includes(active)"
+      :page_active.sync       = "active"
+      :fullstack.sync         = "fullstack"
+      :snippet.sync           = "snippet"
+    />
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+    },
+
+    data: () => ({
+      active    : 'fullstack',
+      linux     : isLinux,
+      fullstack : {},
+      snippet   : {},
+
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+      updateFullstack: $ablaze.throttle(function(){
+        var url  = this.api.crud.fullstack + '/update';
+        var form = JSON.parse(JSON.stringify(this.fullstack));
+        axios.post(url, form).then(response=>{
+          let data = response.data;
+        })
+      }, 3000),
+      updateSnippet: $ablaze.throttle(function(){
+        var url  = this.api.crud.snippet + '/update';
+        var form = JSON.parse(JSON.stringify(this.snippet));
+        axios.post(url, form).then(response=>{
+          let data = response.data;
+        })
+      }, 3000),
+    },
+  }
+</script>

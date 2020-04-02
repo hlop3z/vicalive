@@ -1,0 +1,135 @@
+<template>
+  <v-data-table
+    :headers="theHeaders"
+    :items="items"
+    :search="search"
+    :sort-by="sortBy.col"
+    :sort-desc="sortBy.desc"
+    class="elevation-4"
+    fixed-header
+    height="350px"
+    hide-default-footer
+  >
+
+    <template v-slot:top>
+      <v-dialog
+        v-model="dialog_delete"
+        width="500"
+      >
+        <v-card>
+          <v-card-text class="pt-5">
+            Are you sure you want to delete
+            (
+            <span class="black--text">ID: </span>
+            <strong class="red--text accent-4">{{ active_id }}</strong> —
+            <strong class="red--text accent-4">{{ active_name }}</strong>
+            ) ?
+          </v-card-text>
+
+          <v-divider></v-divider>
+
+          <v-card-actions class="black">
+            <v-spacer></v-spacer>
+            <v-btn color="red" text @click="[(dialog_delete = false)]" >
+              no
+            </v-btn>
+            <v-btn color="green" text @click="[(dialog_delete = false), $emit('delete', active_id)]" >
+              yes
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </template>
+
+    <template v-slot:item.actions="{ item }">
+      <v-btn icon x-small color="blue"
+      @click="$emit('update', item.id)">
+        <v-icon dark>mdi-pencil</v-icon>
+      </v-btn>
+
+      <v-icon
+        small
+        class="ml-3"
+        color="red accent-4"
+        @click="deleteItem(item.id, item.name)"
+      >
+        mdi-delete
+      </v-icon>
+
+    </template>
+  </v-data-table>
+</template>
+<script>
+  export default {
+    sync:['search', 'sort'],
+
+    props:{
+      items         : { type: Array, default: [] },
+      show          : { type: Array, default: null },
+      hide          : { type: Array, default: null },
+      headers       : { type: Object, default: null },
+      headerClass   : { type: String, default: 'blue dark' }
+    },
+
+    data: () => ({
+      active_id  : null,
+      active_name: null,
+      dialog_delete: false,
+    }),
+
+    created () {
+    },
+
+    mounted() {
+    },
+
+    computed: {
+      sortBy(){
+        return {
+          desc: this.sort.startsWith('-'),
+          col : this.sort.replace('-','')
+        }
+      },
+      theHeaders(){
+        var output = []
+        if(this.headers){
+          this.headers.forEach(col => {
+            col.class = this.headerClass;
+          });
+          output.push(...this.headers);
+          output.push({
+            value   : 'actions',
+            text    : 'Actions',
+            sortable: false,
+            class   : this.headerClass,
+          });
+          return output
+        }else if(this.show){
+          this.show.forEach(key => {
+            output.push({
+              value   : key,
+              text    : (key==='id') ? $ablaze.filter.upper(key) : $ablaze.filter.title(key),
+              class   : this.headerClass,
+            });
+          });
+          output.push({
+            value   : 'actions',
+            text    : 'Actions',
+            sortable: false,
+            class   : this.headerClass,
+          });
+          return output
+        }
+      }
+    },
+
+    methods: {
+      deleteItem: function(id, name){
+        this.active_id     = id;
+        this.active_name   = name;
+        this.dialog_delete = true;
+      },
+
+    },
+  }
+</script>

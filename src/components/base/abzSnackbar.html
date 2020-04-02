@@ -1,0 +1,45 @@
+<template>
+      <v-snackbar
+        v-model="snackbar.active"
+        :color="snackbar.color"
+        :left="snackbar.x === 'left'"
+        :right="snackbar.x === 'right'"
+        :timeout="snackbar.timeout"
+        :top="snackbar.y === 'top'"
+        :bottom="snackbar.y === 'bottom'"
+        :multi-line="snackbar.mode === 'multi-line'"
+        :vertical="snackbar.mode === 'vertical'"
+      >
+      {{ snackbar.text }}
+      <v-btn
+        :color="snackbar.close.color"
+        text
+        @click="snackbar.active = false"
+      >
+        {{ snackbar.close.text }}
+      </v-btn>
+    </v-snackbar>
+</template>
+<script>
+  export default {
+    props: {
+    },
+
+    data: () => ({
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+
+    },
+
+    methods: {
+    },
+  }
+</script>

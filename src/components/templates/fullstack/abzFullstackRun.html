@@ -1,0 +1,69 @@
+<template>
+  <v-card
+    class="mx-auto"
+    max-width="145px"
+    style="position: absolute; left:50%; top:0px; z-index: 10;"
+  >
+    <v-toolbar flat dense>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon
+            v-on="on"
+            color="purple accent-4"
+            @click="$emit('copy')"
+          >
+            <v-icon>mdi-content-copy</v-icon>
+          </v-btn>
+        </template>
+        <span>Copy</span>
+      </v-tooltip>
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon
+            v-on="on"
+            color="green accent-4"
+            @click="$emit('run')"
+          >
+            <v-icon>mdi-play</v-icon>
+          </v-btn>
+        </template>
+        <span>Run</span>
+      </v-tooltip>
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon
+            v-on="on"
+            color="red accent-4"
+            @click="$emit('stop')"
+          >
+            <v-icon>mdi-stop</v-icon>
+          </v-btn>
+        </template>
+        <span>Stop</span>
+      </v-tooltip>
+    </v-toolbar>
+  </v-card>
+</template>
+<script>
+  export default {
+    props: {
+    },
+
+    data: () => ({
+    }),
+
+    created() {
+    },
+
+    mounted () {
+    },
+
+    computed:{
+    },
+
+    methods: {
+    },
+  }
+</script>

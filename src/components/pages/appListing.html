@@ -1,0 +1,126 @@
+<template>
+  <v-app>
+    <abz-snackbar />
+
+    <abz-side-top :active.sync="page_active"/>
+
+    <v-content
+      class="fill-height text-center"
+      style="overflow: hidden;"
+      fluid
+    >
+      <fullstack-table v-if="(page_active==='fullstack')"
+        :key              = "Date.now()"
+        :show             = "['id', 'name', 'tags', 'info']"
+        :active.sync      = "fullstack"
+        :page_active.sync = "page_active"
+      />
+      <snippets-table  v-if="(page_active==='snippets')"
+        :key              = "Date.now()"
+        :show             = "['id', 'name', 'lang', 'tags', 'info']"
+        :active.sync      = "snippet"
+        :page_active.sync = "page_active"
+      />
+      <v-container v-if="(page_active==='settings')">
+        <v-file-input v-model="files" show-size label="Import" style="width: 300px; margin-left:auto; margin-right:auto;"></v-file-input>
+        <v-btn outlined color="blue" @click="upload">
+          Import
+          <v-icon> mdi-application-import </v-icon>
+        </v-btn>
+        <v-btn dark color="blue" @click="download" class="ml-3">
+          Export
+          <v-icon> mdi-application-export </v-icon>
+        </v-btn>
+        <h3 class="mt-4">File is too big?</h3>
+        <h5 class="red--text accent-3 mt-3">Here is the path to the database.</h5>
+        <h5
+          class="blue--text accent-4 mt-3"
+          style="cursor: pointer; text-decoration: underline;"
+          @click="copyText(db_path)"
+         >{{ db_path }}</h5>
+
+      </v-container>
+    </v-content>
+
+    <abz-side-bottom />
+  </v-app>
+</template>
+<script>
+  export default {
+    sync: ['page_active', 'fullstack', 'snippet'],
+    props: {
+    },
+
+    data: () => ({
+      db_path: "",
+      files: ""
+    }),
+
+    created() {
+      var self = this;
+      axios.get(this.api.crud.db.path).then(response=>{
+        var path = response.data;
+        self.db_path = String(path);
+      });
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+      download: function(){
+        var name = "database.db"
+        var link = document.createElement('a');
+        link.download = name;
+        link.href = this.api.crud.db.export;
+        link.click();
+        document.body.removeChild(link);
+      },
+      upload: function(){
+        var self = this;
+        let formData = new FormData();
+        formData.append('file', this.files);
+        if(this.files){
+          axios.post(this.api.crud.db.import,
+            formData,
+            {
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              }
+            }
+          ).then(function(){
+            self.snackbar = { color:"green", text: 'Successfully uploaded!', active: true, timeout: 2000 };
+            self.files = ""
+          })
+          .catch(function(){
+            console.log('FAILURE!!');
+          });
+        }
+      },
+      upload_multiple: function(){
+        let formData = new FormData();
+        for( var i = 0; i < this.files.length; i++ ){
+          let file = this.files[i];
+          formData.append('files[' + i + ']', file);
+        }
+        axios.post(this.api.crud.db.import,
+          formData,
+          {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+          }
+        ).then(function(){
+          console.log('SUCCESS!!');
+        })
+        .catch(function(){
+          console.log('FAILURE!!');
+        });
+      },
+    },
+  }
+</script>

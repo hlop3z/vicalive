@@ -1,0 +1,109 @@
+<template>
+    <dynamic-table
+      v-bind="$attrs"
+      icon="mdi-package-variant"
+      title="Fullstack"
+      :sort.sync="sort"
+      :items="theItems"
+      header-color="black"
+      dark
+      @create="createItem"
+      @update="id=>editItem(id)"
+      @delete="id=>deleteItem(id)"
+    />
+</template>
+<script>
+  export default {
+    sync:['page_active', 'active'],
+
+    props: {
+    },
+
+    data: () => ({
+      sort  : "-name",
+      items:[],
+    }),
+
+    created() {
+      this.getItems();
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+      theItems(){
+        var form;
+        var fake = [];
+        this.items.forEach((item, i) => {
+          form = JSON.parse( JSON.stringify(item) );
+          if(form.info){
+            form.info = $ablaze.filter.cut(form.info, 2);
+          }
+          fake.push( form );
+        });
+        return fake
+      }
+    },
+
+    methods: {
+      createItem: function(){
+        var url = this.api.crud.fullstack +'/create';
+        var form = {
+          id  :null,
+          name:"Untitled",
+          tags:null,
+          info:null,
+          notes:null,
+          links: [],
+          snippets:{
+            python    : '',
+            javascript: '',
+            html:{
+              live    : '',
+              server  : '',
+              script : '',
+              head   : '',
+            },
+            js:{
+              vue     : '',
+            },
+            py:{
+              sanic     : '',
+              cherrypy  : '',
+              quartpy   : '',
+            },
+            sh:{
+              live      : '',
+              script    : '',
+            },
+          }
+        };
+
+        axios.post(url, form).then(response=>{
+          this.items = response.data.data;
+        })
+      },
+      editItem: function(id){
+        var items = $ablaze.records( this.items ).by('id');
+        this.active = items[ id ]
+        this.page_active = "fullstack-editor"
+      },
+      deleteItem: function(id){
+        var url = this.api.crud.fullstack +'/delete';
+        axios.post(url,{
+          id  : id,
+        }).then(response=>{
+          this.items = response.data.data;
+        })
+      },
+      getItems: function(){
+        var url = this.api.crud.fullstack +'/all';
+        axios.post(url,{}).then(response=>{
+          this.items = response.data.data;
+        })
+      }
+    },
+  }
+</script>

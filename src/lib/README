@@ -1,0 +1,14 @@
+AblazeRecords => OPTIONS:{
+  list
+  head(size)
+  tail(size)
+  by(column)
+  sort(columns)
+  group(column)
+  find(column, value)
+  find_not(column, value)
+  search(columns, value, ignore_case)
+  search_not(columns, value, ignore_case)
+  dirty(new_array) returns UPDATES ONLY
+  dirty_form(old, new) returns UPDATES ONLY
+}

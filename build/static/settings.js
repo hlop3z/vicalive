@@ -1,0 +1,1 @@
+const isLinux = true;

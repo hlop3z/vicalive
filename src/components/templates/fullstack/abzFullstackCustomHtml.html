@@ -1,0 +1,66 @@
+<template>
+  <div>
+    <v-dialog
+      v-model="dialog"
+      fullscreen
+    >
+      <v-card>
+        <v-card-title
+          class="deep-purple darken-4 white--text"
+          primary-title
+        >
+          Setup scripts inside...
+          <v-spacer/>
+          &lt;{{ part }}&gt;&lt;/{{ part }}&gt;
+          <v-spacer/>
+          <v-btn
+            color="white"
+            outlined
+            @click="dialog = false"
+          >
+            Save
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="mt-4" style="height:500px;">
+          <ace-editor
+            class       = "mt-5"
+            v-show      = "(part==='head')"
+            :code.sync  = "html.head"
+            lang        = "html"
+            style="height:100%; width:100%;"
+          />
+          <ace-editor
+            class       = "mt-5"
+            v-show      = "(part==='body')"
+            :code.sync  = "html.script"
+            lang        = "html"
+          />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
+</template>
+<script>
+  export default {
+    sync:["dialog", "part", "html"],
+    props: {
+    },
+
+    data: () => ({
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+    },
+  }
+</script>

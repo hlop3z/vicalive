@@ -1,0 +1,97 @@
+<template>
+  <div style="overflow:hidden; height:100%;">
+    <abz-snippet-bar
+      :selected.sync="selected"
+      :dialog.sync="info_dialog"
+      @copy= "copyText( form.snippet )"
+      @run = "runCode"
+      @stop= "stopCode"
+    />
+    <div class="ml-2 mr-2 mt-1" style="overflow:hidden; height:86%;">
+      <ace-editor
+        :code.sync  = "form.snippet"
+        :lang.sync  = "selected"
+        :key        = "selected"
+        @save       = "$emit('save')"
+      />
+    </div>
+    <abz-fullstack-info
+      :dialog.sync= "info_dialog"
+      :form.sync  = "form"
+      :links.sync = "form.links"
+      @save       = "$emit('save')"
+    />
+  </div>
+</template>
+<script>
+  export default {
+    sync: ['selected', 'form'],
+    props: {
+    },
+
+    data: () => ({
+      info_dialog : false,
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+    },
+
+    methods: {
+      isActive: function(name){
+        return this.selected === name;
+      },
+      runCode: function(){
+        let url_run  = ( action ) => `${ this.api.py_run }/${ action }`
+        let url_html = `${ this.api.html_run }`
+        var code     = this.form.snippet;
+
+        if (this.isActive('javascript')) {
+          try {
+            eval( `console.log=console.print; ${ code }` );
+            eval( `console.log=console._log;` );
+          } catch (e) {
+            var err = `Error at line[${ e.lineNumber }]: ${ e.message }`;
+            console.print(err)
+          }
+        }
+        else if (this.isActive('python')) {
+          var self    = this;
+          var action  = "live";
+          axios.post(url_run(action), { data : code }).then(response=>{
+            self.console_log = ( response.data )
+          });
+        }
+        else if (this.isActive('sh')) {
+          var self    = this;
+          var action  = "shell";
+          axios.post(url_run(action), { data : code }).then(response=>{
+            self.console_log = ( response.data )
+          });
+        }
+
+      },
+
+      stopCode: function(){
+        let url  = ( action ) => `${ this.api.py_stop }/${ action }`
+
+        if (this.isActive('py-live')) {
+          axios.get(url('live')).then(response=>{ });
+        }
+        else if ( this.isActive('py-sanic') || this.isActive('py-cherrypy') || this.isActive('py-quartpy') ) {
+          axios.get(url('server')).then(response=>{ });
+        }
+        else if (this.isActive('sh-live') || this.isActive('sh-script')) {
+          axios.get(url('shell')).then(response=>{ });
+        }
+
+      },
+    },
+  }
+</script>

@@ -1,0 +1,212 @@
+<template>
+  <div style='width:100%; height:100%; overflow: hidden;'>
+    <div style="overflow:hidden; height:50px;">
+      <abz-fullstack-bar
+        :selected.sync= "selected"
+        :linux.sync   = "linux"
+        :dialog.sync  = "info_dialog"
+      />
+      <abz-fullstack-run
+      @copy= "copyText( copyActiveEditor )"
+      @run = "runCode"
+      @stop= "stopCode"
+      />
+    </div>
+    <abz-fullstack-editors
+      :codes.sync   = "form.snippets"
+      :selected.sync= "selected"
+      style         = "overflow:hidden; height:89%;"
+      class         = "ml-2 mr-2 mt-1"
+      :ids.sync     = "ids"
+      @save         = "$emit('save')"
+    />
+    <abz-fullstack-info
+      :dialog.sync= "info_dialog"
+      :form.sync  = "form"
+      :links.sync = "form.links"
+      @save       = "$emit('save')"
+    />
+
+    <v-dialog
+      v-model="html_live_dialog"
+      fullscreen
+    >
+      <v-card style="height:100%; overflow:hidden">
+        <v-card-title
+          class="ma-0 pa-0 black white--text"
+          style="height:5%;"
+        >
+          <div class="text-center" style="width:100%;">
+            HTML - Live
+            <v-btn
+            @click="html_live_dialog=false"
+            x-small outlined color="red" class="ml-3" style="margin-top:-5.5px;">close</v-btn>
+          </div>
+        </v-card-title>
+        <v-card-text
+          class="ma-0 pa-0"
+          style="height:95%;"
+          :key="new Date().getTime()"
+        >
+          <iframe :src="api.html_view" style="width:100%; height:100%;"></iframe>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+  </div>
+</template>
+<script>
+  export default {
+    sync: [ 'selected', 'linux', 'form'],
+    props: {
+    },
+
+    data: () => ({
+      ids               : {},
+      html_live_dialog  : false,
+      info_dialog       : false,
+      web_worker        : undefined,
+      checklivepy       : null,
+    }),
+
+    created() {
+    },
+
+    mounted () {
+      var element = this.$el;
+    },
+
+    computed:{
+      copyActiveEditor(){
+        if( this.isActive('py-live') ){
+          return this.form.snippets.python
+        }
+        else if( this.isActive('py-sanic') ){
+          return this.form.snippets.py.sanic
+        }
+        else if( this.isActive('py-cherrypy') ){
+          return this.form.snippets.py.cherrypy
+        }
+        else if( this.isActive('py-quartpy') ){
+          return this.form.snippets.py.quartpy
+        }
+        else if( this.isActive('js-live') ){
+          return this.form.snippets.javascript
+        }
+        else if( this.isActive('js-vue') ){
+          return this.form.snippets.js.vue
+        }
+        else if( this.isActive('sh-live') ){
+          return this.form.snippets.sh.live
+        }
+        else if( this.isActive('sh-script') ){
+          return this.form.snippets.sh.script
+        }
+        else if( this.isActive('html-live') ){
+          return this.form.snippets.html.live
+        }
+        else if( this.isActive('html-server') ){
+          return this.form.snippets.html.server
+        }
+        else if( this.isActive('html-head') ){
+          return this.form.snippets.html.head
+        }
+        else if( this.isActive('html-script') ){
+          return this.form.snippets.html.script
+        }
+      },
+    },
+
+    methods: {
+      runCode: function(){
+        let url_run  = ( action ) => `${ this.api.py_run }/${ action }`
+        let url_html = `${ this.api.html_run }`
+        this.console_log = [];
+
+        if (this.isActive('js-live')) {
+          var code  = this.form.snippets.javascript;
+          try {
+            eval( `console.log=console.print; ${ code }` );
+            eval( `console.log=console._log;` );
+          } catch (e) {
+            var err = `Error at line[${ e.lineNumber }]: ${ e.message }`;
+            console.print(err)
+          }
+        }
+        else if (this.isActive('html-server')) {
+          var self    = this;
+          var code    = {
+            head   : this.form.snippets.html.head,
+            body   : this.form.snippets.html.server,
+            scripts: this.form.snippets.html.script,
+          }
+          axios.post(url_html, { data : code }).then(response=>{
+            self.html_live_dialog=true;
+          });
+        }
+        else if (this.isActive('py-live')) {
+          var self    = this;
+          var action  = "live";
+          var code    = this.form.snippets.python;
+          axios.post(url_run(action), { data : code }).then(response=>{
+            self.console_log = ( response.data )
+          });
+        }
+        else if (this.isActive('py-sanic')) {
+          var self    = this;
+          var action  = "sanic";
+          var code    = this.form.snippets.py.sanic;
+          axios.post(url_run(action), { data : code }).then(response=>{
+          });
+        }
+        else if (this.isActive('py-cherrypy')) {
+          var self    = this;
+          var action  = "cherrypy";
+          var code    = this.form.snippets.py.cherrypy;
+          axios.post(url_run(action), { data : code }).then(response=>{
+          });
+        }
+        else if (this.isActive('py-quartpy')) {
+          var self    = this;
+          var action  = "quart";
+          var code    = this.form.snippets.py.quartpy;
+          axios.post(url_run(action), { data : code }).then(response=>{
+          });
+        }
+        else if (this.isActive('sh-live')) {
+          var self    = this;
+          var action  = "shell";
+          var code    = this.form.snippets.sh.live;
+          axios.post(url_run(action), { data : code }).then(response=>{
+            self.console_log = ( response.data )
+          });
+        }
+        else if (this.isActive('sh-script')) {
+          var self    = this;
+          var action  = "sh";
+          var code    = this.form.snippets.sh.script;
+          axios.post(url_run(action), { data : code }).then(response=>{
+            self.console_log = ( response.data )
+          });
+        }
+
+      },
+
+      stopCode: function(){
+        let url  = ( action ) => `${ this.api.py_stop }/${ action }`
+
+        if (this.isActive('py-live')) {
+          axios.get(url('live')).then(response=>{ });
+        }
+        else if ( this.isActive('py-sanic') || this.isActive('py-cherrypy') || this.isActive('py-quartpy') ) {
+          axios.get(url('server')).then(response=>{ });
+        }
+        else if (this.isActive('sh-live') || this.isActive('sh-script')) {
+          axios.get(url('shell')).then(response=>{ });
+        }
+
+      },
+
+    },
+  }
+</script>
